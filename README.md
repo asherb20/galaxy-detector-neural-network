@@ -28,3 +28,9 @@ Dense → Sigmoid (1 output neuron for binary classification)
 ## Resources
 
 [Galaxy Zoo](https://www.zooniverse.org/projects/zookeeper/galaxy-zoo)
+
+## Roadmap
+
+- [x] Write image preprocessor
+- [x] Write dataset loader
+- [ ] Write neural network
