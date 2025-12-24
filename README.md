@@ -34,3 +34,6 @@ Dense → Sigmoid (1 output neuron for binary classification)
 - [x] Write image preprocessor
 - [x] Write dataset loader
 - [ ] Write neural network
+  - [x] Forward pass
+  - [x] Loss function
+  - [ ] Backpropagation
