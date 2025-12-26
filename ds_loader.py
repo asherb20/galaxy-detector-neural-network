@@ -8,12 +8,10 @@ class DatasetLoader:
       self.preprocessor = preprocessor
       self.flatten = flatten
       self.data = []
-      self.labels = []
 
    # loop through directory
    # preprocess each image
-   # append data
-   # append label
+   # append tuple data
    def append_data(self, dir, label):
       with os.scandir(dir) as entries:
          for entry in entries:
@@ -21,20 +19,11 @@ class DatasetLoader:
                img_data = self.preprocessor.preprocess(entry.path)
                if self.flatten:
                   img_data = img_data.flatten()
-               self.data.append(img_data)
-               self.labels.append(label)
+               self.data.append((img_data, label))
 
-   # generate random permutation of indices
-   # apply permutation to data and labels
-   def shuffle_data(self, data, labels):
-      indices = np.arange(len(data))
-      np.random.shuffle(indices)
-      return data[indices], labels[indices]
-
-   # append data and labels for each directory
-   # return data and labels
+   # append data for each directory
+   # shuffle and return data
    def load(self):
       self.append_data(self.galaxy_dir, 1)
       self.append_data(self.non_galaxy_dir, 0)
-
-      return self.shuffle_data(np.array(self.data), np.array(self.labels))
+      return self.data

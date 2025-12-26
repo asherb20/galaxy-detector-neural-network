@@ -36,4 +36,7 @@ Dense → Sigmoid (1 output neuron for binary classification)
 - [ ] Write neural network
   - [x] Forward pass
   - [x] Loss function
-  - [ ] Backpropagation
+  - [x] Backpropagation
+  - [x] Gradient descent
+  - [x] Training loop
+  - [x] Loss tracking
