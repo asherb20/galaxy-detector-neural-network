@@ -17,7 +17,8 @@ class Network:
       return self.sigmoid(z) * (1 - self.sigmoid(z))
    
    def binary_cross_entropy(self, y, a):
-      return -(y * np.log(a + 1e-8) + (1 - y) * np.log(1 - a + 1e-8))
+      loss = -(y * np.log(a + 1e-8) + (1 - y) * np.log(1 - a + 1e-8))
+      return float(loss.item()) # convert (1,1) array to scalar
 
    # iterate over each layer
    # calculate the activation for each neuron
@@ -44,7 +45,7 @@ class Network:
 
       activations, zs = self.forward_pass(x)
 
-      delta = (activations[-1] - y) * self.sigmoid_prime(zs[-1])
+      delta = activations[-1] - y
       nabla_b[-1] = delta
       nabla_w[-1] = np.outer(delta, activations[-2])
 
@@ -72,11 +73,21 @@ class Network:
       self.weights = [w - (learn_rate / len(mini_batch)) * nw for w, nw in zip(self.weights, nabla_w)]
       self.biases = [b - (learn_rate / len(mini_batch)) * nb for b, nb in zip(self.biases, nabla_b)]
 
+   def evaluate(self, validation_data):
+      correct = 0
+      for x, y in validation_data:
+         activations, _ = self.forward_pass(x)
+         a = activations[-1]
+         prediction = 1 if a >= 0.5 else 0
+         if prediction == y:
+            correct += 1
+      return correct / len(validation_data)
+
    # split dataset into mini-batches
    # call update_mini_batch for each mini-batch
    # repeat for multiple epochs
    # compute average loss for each epoch
-   def train(self, training_data, epochs, mini_batch_size, learn_rate):
+   def train(self, training_data, epochs, mini_batch_size, learn_rate, validation_data=None):
       n = len(training_data)
       for epoch in range(epochs):
          np.random.shuffle(training_data)
@@ -99,10 +110,19 @@ class Network:
          avg_loss = total_loss / n
          accuracy = correct / n
 
-         print(f'Epoch {epoch + 1}: Loss = {avg_loss}: Accuracy = {accuracy * 100}%')
+         metrics = f'Epoch {epoch + 1}: Loss = {avg_loss:.3f}: Train Acc = {(accuracy * 100):.1f}%'
+
+         if validation_data:
+            val_accuracy = self.evaluate(validation_data)
+            metrics += f': Val Acc = {(val_accuracy * 100):.1f}%'
+
+         print(metrics)
 
 
 loader = DatasetLoader(galaxy_dir='./images/galaxies', non_galaxy_dir='./images/non_galaxies', preprocessor=ImagePreprocessor(), flatten=True)
 training_data = loader.load()
+split = int(0.8 * len(training_data))
+training_set = training_data[:split]
+validation_set = training_data[split:]
 net = Network(layers=[16384, 64, 32, 1], learn_rate=0.01)
-net.train(training_data=training_data, epochs=10, mini_batch_size=3, learn_rate=0.5)
+net.train(training_data=training_data, epochs=10, mini_batch_size=3, learn_rate=0.5, validation_data=validation_set)

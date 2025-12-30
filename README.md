@@ -9,21 +9,7 @@
 
 ## Architecture
 
-**Convolutional Neural Network (CNN)**
-
-```
-Input image (e.g., 128x128x3)
-↓
-Conv2D → ReLU → MaxPooling
-↓
-Conv2D → ReLU → MaxPooling
-↓
-Flatten
-↓
-Dense → ReLU
-↓
-Dense → Sigmoid (1 output neuron for binary classification)
-```
+Large fully connected classifier (MLP)
 
 ## Resources
 
@@ -33,10 +19,11 @@ Dense → Sigmoid (1 output neuron for binary classification)
 
 - [x] Write image preprocessor
 - [x] Write dataset loader
-- [ ] Write neural network
+- [x] Write neural network
   - [x] Forward pass
   - [x] Loss function
   - [x] Backpropagation
   - [x] Gradient descent
   - [x] Training loop
   - [x] Loss tracking
+- Curate larger training set

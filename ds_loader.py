@@ -1,5 +1,5 @@
 import os
-import numpy as np
+# import numpy as np
 
 class DatasetLoader:
    def __init__(self, galaxy_dir, non_galaxy_dir, preprocessor, flatten=False):
