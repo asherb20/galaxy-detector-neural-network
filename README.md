@@ -26,4 +26,4 @@ Large fully connected classifier (MLP)
   - [x] Gradient descent
   - [x] Training loop
   - [x] Loss tracking
-- Curate larger training set
+- [ ] Curate larger training set
