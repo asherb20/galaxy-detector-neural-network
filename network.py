@@ -125,4 +125,4 @@ split = int(0.8 * len(training_data))
 training_set = training_data[:split]
 validation_set = training_data[split:]
 net = Network(layers=[16384, 64, 32, 1], learn_rate=0.01)
-net.train(training_data=training_data, epochs=10, mini_batch_size=3, learn_rate=0.5, validation_data=validation_set)
+net.train(training_data=training_data, epochs=30, mini_batch_size=3, learn_rate=0.5, validation_data=validation_set)
