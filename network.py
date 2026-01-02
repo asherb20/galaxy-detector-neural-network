@@ -3,12 +3,11 @@ from ds_loader import DatasetLoader
 from preprocessor import ImagePreprocessor
 
 class Network:
-   def __init__(self, layers, learn_rate):
+   def __init__(self, layers):
       self.layers = layers
       self.num_layers = len(self.layers)
       self.weights = [np.random.randn(y, x) for x, y in zip(layers[:-1], layers[1:])]
       self.biases = [np.random.randn(y, 1) for y in layers[1:]]
-      self.learn_rate = learn_rate
 
    def sigmoid(self, z):
       return 1.0 / (1.0 + np.exp(-z))
@@ -73,15 +72,24 @@ class Network:
       self.weights = [w - (learn_rate / len(mini_batch)) * nw for w, nw in zip(self.weights, nabla_w)]
       self.biases = [b - (learn_rate / len(mini_batch)) * nb for b, nb in zip(self.biases, nabla_b)]
 
-   def evaluate(self, validation_data):
+   # evaluate average loss and accuracy on dataset
+   def evaluate(self, data):
       correct = 0
-      for x, y in validation_data:
+      total_loss = 0
+
+      for x, y in data:
          activations, _ = self.forward_pass(x)
          a = activations[-1]
+         total_loss += self.binary_cross_entropy(y, a)
+
          prediction = 1 if a >= 0.5 else 0
          if prediction == y:
             correct += 1
-      return correct / len(validation_data)
+
+      avg_loss = total_loss / len(data)
+      accuracy = correct / len(data)
+
+      return avg_loss, accuracy
 
    # split dataset into mini-batches
    # call update_mini_batch for each mini-batch
@@ -95,34 +103,19 @@ class Network:
          for mini_batch in mini_batches:
             self.update_mini_batch(mini_batch, learn_rate)
 
-         total_loss = 0
-         correct = 0
-
-         for x, y in training_data:
-            activations, _ = self.forward_pass(x)
-            a = activations[-1]
-            total_loss += self.binary_cross_entropy(y, a)
-
-            prediction = 1 if a >= 0.5 else 0
-            if prediction == y:
-               correct += 1
-
-         avg_loss = total_loss / n
-         accuracy = correct / n
-
+         avg_loss, accuracy = self.evaluate(training_data)
          metrics = f'Epoch {epoch + 1}: Loss = {avg_loss:.3f}: Train Acc = {(accuracy * 100):.1f}%'
 
          if validation_data:
-            val_accuracy = self.evaluate(validation_data)
+            _, val_accuracy = self.evaluate(validation_data)
             metrics += f': Val Acc = {(val_accuracy * 100):.1f}%'
 
          print(metrics)
 
-
-loader = DatasetLoader(galaxy_dir='./images/galaxies', non_galaxy_dir='./images/non_galaxies', preprocessor=ImagePreprocessor(), flatten=True)
+loader = DatasetLoader(galaxy_dir='./images/galaxies', non_galaxy_dir='./images/non_galaxies', preprocessor=ImagePreprocessor(), flatten=True, augment=True, variations=10)
 training_data = loader.load()
 split = int(0.8 * len(training_data))
 training_set = training_data[:split]
 validation_set = training_data[split:]
-net = Network(layers=[16384, 64, 32, 1], learn_rate=0.01)
-net.train(training_data=training_data, epochs=30, mini_batch_size=3, learn_rate=0.5, validation_data=validation_set)
+net = Network(layers=[16384, 64, 32, 1])
+net.train(training_data=training_data, epochs=30, mini_batch_size=100, learn_rate=0.1, validation_data=validation_set)

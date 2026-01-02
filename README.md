@@ -13,7 +13,9 @@ Large fully connected classifier (MLP)
 
 ## Resources
 
-[Galaxy Zoo](https://www.zooniverse.org/projects/zookeeper/galaxy-zoo)
+- [Galaxy Zoo](https://www.zooniverse.org/projects/zookeeper/galaxy-zoo)
+- [NASA Image & Video Library](https://images.nasa.gov/)
+- [Lorem Picsum](https://picsum.photos/)
 
 ## Roadmap
 
@@ -26,4 +28,10 @@ Large fully connected classifier (MLP)
   - [x] Gradient descent
   - [x] Training loop
   - [x] Loss tracking
+- [x] Write image extractor
+- [x] Data augmentation
+- [ ] Convert to Convolutional Neural Network (CNN)
 - [ ] Curate larger training set
+- [ ] K-fold cross-validation
+- [ ] Add test set
+- [ ] Build simple UI for image upload then prediction
