@@ -30,8 +30,8 @@ Large fully connected classifier (MLP)
   - [x] Loss tracking
 - [x] Write image extractor
 - [x] Data augmentation
-- [ ] Convert to Convolutional Neural Network (CNN)
-- [ ] Curate larger training set
-- [ ] K-fold cross-validation
-- [ ] Add test set
+- [x] Convert to Convolutional Neural Network (CNN)
+- [x] Curate larger training set
+- [ ] Improve training speed
 - [ ] Build simple UI for image upload then prediction
+- [ ] Expand network to classify galaxy type
