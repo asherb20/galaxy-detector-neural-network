@@ -1,6 +1,6 @@
 import numpy as np
-from ds_loader import DatasetLoader
-from preprocessor import ImagePreprocessor
+from mlp.ds_loader import DatasetLoader
+from mlp.preprocessor import ImagePreprocessor
 
 class Network:
    def __init__(self, layers):
