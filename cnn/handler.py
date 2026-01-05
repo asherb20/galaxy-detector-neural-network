@@ -11,10 +11,13 @@ batch_size = 128
 num_classes = 2
 learning_rate = 0.001
 num_epochs = 20
-num_workers = 3
+num_workers = 0
 
 # device will determine whether to run the training on GPU or CPU
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+gpu_avail = torch.cuda.is_available()
+device = torch.device('cuda' if gpu_avail else 'cpu')
+if gpu_avail:
+    print(f"using gpu: {torch.cuda.get_device_name(0)}")
 
 # main training loop
 if __name__ == "__main__":
@@ -35,7 +38,7 @@ if __name__ == "__main__":
     )
 
     # for quicker testing, use a subset of the dataset
-    subset_indices = torch.randperm(len(gz2_dataset))[:500].tolist()
+    subset_indices = torch.randperm(len(gz2_dataset))[:1000].tolist()
     gz2_dataset = torch.utils.data.Subset(gz2_dataset, subset_indices)
 
     # initialize FakeData for non-galaxy images (random noise)
@@ -84,8 +87,13 @@ if __name__ == "__main__":
     # pre-defined number of epochs to determine how many iterations to train the network on
     for epoch in range(num_epochs):
       epoch_start = time.time()
+      # load_time = 0
+      compute_time = 0
+
       # load in the data in batches using the train_loader object
       for i, (images, labels) in enumerate(train_loader):
+        compute_batch_start = time.time()
+
         # move tensors to the configured device
         images = images.to(device)
         labels = labels.to(device)
@@ -99,8 +107,10 @@ if __name__ == "__main__":
         loss.backward()
         optimizer.step()
 
+        compute_time += time.time() - compute_batch_start
+
       epoch_time = time.time() - epoch_start
-      print(f'epoch [{epoch + 1}/{num_epochs}], loss: {loss.item():.4f}, time: {epoch_time:.2f}s')
+      print(f'epoch [{epoch + 1}/{num_epochs}], loss: {loss.item():.4f}, time: {epoch_time:.2f}s, compute: {compute_time:.2f}s')
     
     # evaluation
     model.eval()

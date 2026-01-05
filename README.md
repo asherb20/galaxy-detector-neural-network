@@ -9,13 +9,34 @@
 
 ## Architecture
 
-Large fully connected classifier (MLP)
+**Convolutional Neural Network (CNN)**
+
+```
+Input image (128x128x1 grayscale)
+↓
+Conv2D (32 filters) → Conv2D (32 filters) → MaxPooling
+↓
+Conv2D (64 filters) → Conv2D (64 filters) → MaxPooling
+↓
+AdaptiveAvgPool2d (4x4)
+↓
+Flatten
+↓
+Dense (128 neurons) → ReLU
+↓
+Dense (2 neurons) → Softmax (binary classification: galaxy/non-galaxy)
+```
+
+**Loss:** CrossEntropyLoss
+
+**Optimizer:** Stochastic Gradient Descent (SGD)
 
 ## Resources
 
 - [Galaxy Zoo](https://www.zooniverse.org/projects/zookeeper/galaxy-zoo)
 - [NASA Image & Video Library](https://images.nasa.gov/)
 - [Lorem Picsum](https://picsum.photos/)
+- [PyTorch Galaxy Datasets](https://github.com/patrikasvanagas/pytorch-galaxy-datasets)
 
 ## Roadmap
 
@@ -32,6 +53,6 @@ Large fully connected classifier (MLP)
 - [x] Data augmentation
 - [x] Convert to Convolutional Neural Network (CNN)
 - [x] Curate larger training set
-- [ ] Improve training speed
+- [x] Improve training speed
 - [ ] Build simple UI for image upload then prediction
-- [ ] Expand network to classify galaxy type
+- [ ] Expand network to classify galaxy types
