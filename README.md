@@ -1,5 +1,9 @@
 # Galaxy Detector Neural Network
 
+## Streamlit App
+
+[Galaxy Detector](https://galaxy-detector-neural-network-zgyjmg4jrhfrgu6y2iftmq.streamlit.app/)
+
 ## Task
 
 **Binary image classification**
