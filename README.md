@@ -54,5 +54,5 @@ Dense (2 neurons) → Softmax (binary classification: galaxy/non-galaxy)
 - [x] Convert to Convolutional Neural Network (CNN)
 - [x] Curate larger training set
 - [x] Improve training speed
-- [ ] Build simple UI for image upload then prediction
+- [x] Build simple UI for image upload then prediction
 - [ ] Expand network to classify galaxy types

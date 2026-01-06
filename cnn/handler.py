@@ -38,7 +38,7 @@ if __name__ == "__main__":
     )
 
     # for quicker testing, use a subset of the dataset
-    subset_indices = torch.randperm(len(gz2_dataset))[:1000].tolist()
+    subset_indices = torch.randperm(len(gz2_dataset))[:3000].tolist()
     gz2_dataset = torch.utils.data.Subset(gz2_dataset, subset_indices)
 
     # initialize FakeData for non-galaxy images (random noise)
@@ -87,7 +87,6 @@ if __name__ == "__main__":
     # pre-defined number of epochs to determine how many iterations to train the network on
     for epoch in range(num_epochs):
       epoch_start = time.time()
-      # load_time = 0
       compute_time = 0
 
       # load in the data in batches using the train_loader object
@@ -111,6 +110,15 @@ if __name__ == "__main__":
 
       epoch_time = time.time() - epoch_start
       print(f'epoch [{epoch + 1}/{num_epochs}], loss: {loss.item():.4f}, time: {epoch_time:.2f}s, compute: {compute_time:.2f}s')
+
+      state = {
+         'epoch': epoch + 1,
+         'model_state_dict': model.state_dict(),
+         'optimizer_state_dict': optimizer.state_dict(),
+         'loss': loss.item()
+      }
+
+      torch.save(state, f'models/galaxy_cnn.pth')
     
     # evaluation
     model.eval()
