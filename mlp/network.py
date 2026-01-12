@@ -1,6 +1,7 @@
 import numpy as np
-from mlp.ds_loader import DatasetLoader
-from mlp.preprocessor import ImagePreprocessor
+import matplotlib.pyplot as plt
+from ds_loader import DatasetLoader
+from preprocessor import ImagePreprocessor
 
 class Network:
    def __init__(self, layers):
@@ -95,8 +96,12 @@ class Network:
    # call update_mini_batch for each mini-batch
    # repeat for multiple epochs
    # compute average loss for each epoch
-   def train(self, training_data, epochs, mini_batch_size, learn_rate, validation_data=None):
+   def train(self, training_data, epochs, mini_batch_size, learn_rate, validation_data=None, plot=True):
       n = len(training_data)
+      train_losses = []
+      train_accs = []
+      val_accs = []
+
       for epoch in range(epochs):
          np.random.shuffle(training_data)
          mini_batches = [training_data[k:k+mini_batch_size] for k in range(0, n, mini_batch_size)]
@@ -104,18 +109,52 @@ class Network:
             self.update_mini_batch(mini_batch, learn_rate)
 
          avg_loss, accuracy = self.evaluate(training_data)
+         train_losses.append(avg_loss)
+         train_accs.append(accuracy)
+
          metrics = f'Epoch {epoch + 1}: Loss = {avg_loss:.3f}: Train Acc = {(accuracy * 100):.1f}%'
 
          if validation_data:
             _, val_accuracy = self.evaluate(validation_data)
+            val_accs.append(val_accuracy)
             metrics += f': Val Acc = {(val_accuracy * 100):.1f}%'
 
          print(metrics)
 
-loader = DatasetLoader(galaxy_dir='./images/galaxies', non_galaxy_dir='./images/non_galaxies', preprocessor=ImagePreprocessor(), flatten=True, augment=True, variations=10)
+      if plot:
+         self.plot_training(train_losses, train_accs, val_accs if validation_data else None)
+
+   def plot_training(self, train_losses, train_accs, val_accs=None):
+      # Plot training curves
+      fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4))
+      
+      # Loss plot
+      ax1.plot(train_losses, label='Train Loss', linewidth=2)
+      ax1.set_xlabel('Epoch')
+      ax1.set_ylabel('Loss')
+      ax1.set_title('Training Loss')
+      ax1.grid(True, alpha=0.3)
+      ax1.legend()
+     
+      # Accuracy plot
+      ax2.plot(train_accs, label='Train Acc', linewidth=2)
+      if val_accs is not None:
+         ax2.plot(val_accs, label='Val Acc', linewidth=2)
+      ax2.set_xlabel('Epoch')
+      ax2.set_ylabel('Accuracy')
+      ax2.set_title('Training & Validation Accuracy')
+      ax2.grid(True, alpha=0.3)
+      ax2.legend()
+     
+      plt.tight_layout()
+      plt.savefig('training_curves.png')
+      plt.show()
+
+
+loader = DatasetLoader(galaxy_dir='../data/images/galaxies', non_galaxy_dir='../data/images/non_galaxies', preprocessor=ImagePreprocessor(), flatten=True, augment=True, variations=10)
 training_data = loader.load()
 split = int(0.8 * len(training_data))
 training_set = training_data[:split]
 validation_set = training_data[split:]
 net = Network(layers=[16384, 64, 32, 1])
-net.train(training_data=training_data, epochs=30, mini_batch_size=100, learn_rate=0.1, validation_data=validation_set)
+net.train(training_data=training_data, epochs=20, mini_batch_size=100, learn_rate=0.01, validation_data=validation_set)
