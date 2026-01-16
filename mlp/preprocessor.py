@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 class ImagePreprocessor:
-   def __init__(self, size=(128, 128), color=cv2.COLOR_BGR2GRAY):
+   def __init__(self, size=(64, 64), color=cv2.COLOR_BGR2GRAY):
       self.size = size
       self.color = color
 

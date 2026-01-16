@@ -12,13 +12,6 @@ class Network:
 
    def sigmoid(self, z):
       return 1.0 / (1.0 + np.exp(-z))
-   
-   def sigmoid_prime(self, z):
-      return self.sigmoid(z) * (1 - self.sigmoid(z))
-   
-   def binary_cross_entropy(self, y, a):
-      loss = -(y * np.log(a + 1e-8) + (1 - y) * np.log(1 - a + 1e-8))
-      return float(loss.item()) # convert (1,1) array to scalar
 
    # iterate over each layer
    # calculate the activation for each neuron
@@ -36,6 +29,9 @@ class Network:
          activations.append(activation)
 
       return activations, zs
+   
+   def sigmoid_prime(self, z):
+      return self.sigmoid(z) * (1 - self.sigmoid(z))
    
    # output error
    # backrop through hidden layers
@@ -72,6 +68,10 @@ class Network:
 
       self.weights = [w - (learn_rate / len(mini_batch)) * nw for w, nw in zip(self.weights, nabla_w)]
       self.biases = [b - (learn_rate / len(mini_batch)) * nb for b, nb in zip(self.biases, nabla_b)]
+
+   def binary_cross_entropy(self, y, a):
+      loss = -(y * np.log(a + 1e-8) + (1 - y) * np.log(1 - a + 1e-8))
+      return float(np.mean(loss)) # convert (1,1) array to scalar
 
    # evaluate average loss and accuracy on dataset
    def evaluate(self, data):
@@ -151,10 +151,13 @@ class Network:
       plt.show()
 
 
-loader = DatasetLoader(galaxy_dir='../data/images/galaxies', non_galaxy_dir='../data/images/non_galaxies', preprocessor=ImagePreprocessor(), flatten=True, augment=True, variations=10)
+loader = DatasetLoader(galaxy_dir='../data/images/galaxies', non_galaxy_dir='../data/images/non_galaxies', preprocessor=ImagePreprocessor(), flatten=True, augment=True, variations=3)
 training_data = loader.load()
+# with open('training_data.txt', 'wb') as f:
+#    f.write(str(training_data).encode())
+#    f.close()
 split = int(0.8 * len(training_data))
 training_set = training_data[:split]
 validation_set = training_data[split:]
-net = Network(layers=[16384, 64, 32, 1])
-net.train(training_data=training_data, epochs=20, mini_batch_size=100, learn_rate=0.01, validation_data=validation_set)
+net = Network(layers=[4096, 256, 128, 1])
+net.train(training_data=training_data, epochs=20, mini_batch_size=100, learn_rate=0.1, validation_data=validation_set)
