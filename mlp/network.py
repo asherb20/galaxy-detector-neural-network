@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import time
 from ds_loader import DatasetLoader
 from preprocessor import ImagePreprocessor
 
@@ -103,6 +104,8 @@ class Network:
       val_accs = []
 
       for epoch in range(epochs):
+         epoch_start = time.time()
+
          np.random.shuffle(training_data)
          mini_batches = [training_data[k:k+mini_batch_size] for k in range(0, n, mini_batch_size)]
          for mini_batch in mini_batches:
@@ -118,6 +121,9 @@ class Network:
             _, val_accuracy = self.evaluate(validation_data)
             val_accs.append(val_accuracy)
             metrics += f': Val Acc = {(val_accuracy * 100):.1f}%'
+
+         epoch_time = time.time() - epoch_start
+         metrics += f': Time = {epoch_time:.2f}s'
 
          print(metrics)
 
@@ -151,7 +157,7 @@ class Network:
       plt.show()
 
 
-loader = DatasetLoader(galaxy_dir='../data/images/galaxies', non_galaxy_dir='../data/images/non_galaxies', preprocessor=ImagePreprocessor(), flatten=True, augment=True, variations=3)
+loader = DatasetLoader(galaxy_dir='../data/images/galaxies', non_galaxy_dir='../data/images/non_galaxies', preprocessor=ImagePreprocessor(), flatten=True, augment=True, variations=10)
 training_data = loader.load()
 # with open('training_data.txt', 'wb') as f:
 #    f.write(str(training_data).encode())
@@ -159,5 +165,5 @@ training_data = loader.load()
 split = int(0.8 * len(training_data))
 training_set = training_data[:split]
 validation_set = training_data[split:]
-net = Network(layers=[4096, 256, 128, 1])
-net.train(training_data=training_data, epochs=20, mini_batch_size=100, learn_rate=0.1, validation_data=validation_set)
+net = Network(layers=[4096, 128, 1])
+net.train(training_data=training_set, epochs=20, mini_batch_size=100, learn_rate=0.01, validation_data=validation_set)
