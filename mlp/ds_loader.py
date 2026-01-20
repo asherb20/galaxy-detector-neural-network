@@ -1,5 +1,5 @@
 import os
-# import numpy as np
+import numpy as np
 
 class DatasetLoader:
    def __init__(self, galaxy_dir, non_galaxy_dir, preprocessor, flatten=False, augment=False, variations=1):
@@ -29,4 +29,5 @@ class DatasetLoader:
    def load(self):
       self.append_data(self.galaxy_dir, 1)
       self.append_data(self.non_galaxy_dir, 0)
+      np.random.shuffle(self.data)
       return self.data
