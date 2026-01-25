@@ -156,19 +156,19 @@ class Network:
       plt.savefig('training_curves.png')
       plt.show()
 
-
-loader = DatasetLoader(
-   galaxy_dir='../data/gz2/images/587722',
-   non_galaxy_dir='../data/images/non_galaxies',
-   preprocessor=ImagePreprocessor(),
-   flatten=True,
-   augment=False,
-   variations=1
-)
-training_data = loader.load()
-print(f"Total training samples: {len(training_data)}")
-split = int(0.8 * len(training_data))
-training_set = training_data[:split]
-validation_set = training_data[split:]
-net = Network(layers=[4096, 256, 128, 1])
-net.train(training_data=training_set, epochs=20, mini_batch_size=100, learn_rate=0.01, validation_data=validation_set)
+if __name__ == "__main__":
+   loader = DatasetLoader(
+      galaxy_dir='../data/gz2/images/587722',
+      non_galaxy_dir='../data/images/non_galaxies',
+      preprocessor=ImagePreprocessor(),
+      flatten=True,
+      augment=False,
+      variations=1
+   )
+   training_data = loader.load()
+   print(f"Total training samples: {len(training_data)}")
+   split = int(0.8 * len(training_data))
+   training_set = training_data[:split]
+   validation_set = training_data[split:]
+   net = Network(layers=[4096, 256, 128, 1])
+   net.train(training_data=training_set, epochs=20, mini_batch_size=100, learn_rate=0.01, validation_data=validation_set)

@@ -45,6 +45,7 @@ class ImageExtractor:
       else:
          print(f'failed to fetch galaxy images: status code {res.status_code}: {res.text}')
 
-extractor = ImageExtractor()
-extractor.download_random_images(count=200)
-# extractor.download_galaxy_images(count=50, page=3, path='./images/galaxies/staging/')
+if __name__ == '__main__':
+   extractor = ImageExtractor()
+   extractor.download_random_images(count=200)
+   extractor.download_galaxy_images(count=50, page=3, path='./images/galaxies/staging/')
