@@ -1,6 +1,7 @@
-venv
+.venv
 log
 __pycache__
 .env
 images
 data
+.vscode
