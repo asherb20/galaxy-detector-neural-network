@@ -1,45 +1,34 @@
 import torch.nn as nn
 
-
-def conv_block(in_channels, out_channels):
-   """Two 3x3 conv layers (each followed by BatchNorm + ReLU), then halve the spatial size"""
-   return nn.Sequential(
-      nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1, bias=False),
-      nn.BatchNorm2d(out_channels),
-      nn.ReLU(inplace=True),
-      nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1, bias=False),
-      nn.BatchNorm2d(out_channels),
-      nn.ReLU(inplace=True),
-      nn.MaxPool2d(kernel_size=2, stride=2)
-   )
-
-
+"""Define the Convolutional Neural Network architecture"""
 class ConvNeuralNet(nn.Module):
-   """Shared CNN backbone with two heads:
-   - detect: galaxy vs. non-galaxy (2 logits)
-   - morph: galaxy morphology (num_morph_classes logits), only meaningful for galaxies
-   """
-   def __init__(self, num_morph_classes, in_channels=3):
-      super().__init__()
-      # 128 -> 64 -> 32 -> 16 -> 8
-      self.backbone = nn.Sequential(
-         conv_block(in_channels, 32),
-         conv_block(32, 64),
-         conv_block(64, 128),
-         conv_block(128, 256),
-         nn.AdaptiveAvgPool2d(1),
-         nn.Flatten(),
-         nn.Dropout(0.3)
-      )
-      self.detect_head = nn.Linear(256, 2)
-      self.morph_head = nn.Sequential(
-         nn.Linear(256, 128),
-         nn.ReLU(inplace=True),
-         nn.Dropout(0.3),
-         nn.Linear(128, num_morph_classes)
-      )
+    def __init__(self, num_classes):
+      super(ConvNeuralNet, self).__init__()
+      self.conv_layer1 = nn.Conv2d(in_channels=1, out_channels=32, kernel_size=3)
+      self.conv_layer2 = nn.Conv2d(in_channels=32, out_channels=32, kernel_size=3)
+      self.max_pool1 = nn.MaxPool2d(kernel_size=2, stride=2)
+      self.conv_layer3 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3)
+      self.conv_layer4 = nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3)
+      self.max_pool2 = nn.MaxPool2d(kernel_size=2, stride=2)
+      self.adaptive_pool = nn.AdaptiveAvgPool2d((4, 4))
+      self.fc1 = nn.Linear(4 * 4 * 64, 128)
+      self.relu1 = nn.ReLU()
+      self.fc2 = nn.Linear(128, num_classes)
 
-   # Progresses data across layers
-   def forward(self, x):
-      features = self.backbone(x)
-      return self.detect_head(features), self.morph_head(features)
+    # Progresses data across layers
+    def forward(self, x):
+      out = self.conv_layer1(x)
+      out = self.conv_layer2(out)
+      out = self.max_pool1(out)
+
+      out = self.conv_layer3(out)
+      out = self.conv_layer4(out)
+      out = self.max_pool2(out)
+      out = self.adaptive_pool(out)
+
+      out = out.reshape(out.size(0), -1)  # Flatten
+
+      out = self.fc1(out)
+      out = self.relu1(out)
+      out = self.fc2(out)
+      return out

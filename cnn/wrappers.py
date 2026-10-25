@@ -1,69 +1,30 @@
-import os
 import torch
-from PIL import Image
-from cnn.morphology import IGNORE
 
-"""Dataset adapters; every item is (image, detect_label, morph_label)"""
-
-GALAXY = 1
-NON_GALAXY = 0
-IMAGE_EXTENSIONS = ('.jpg', '.jpeg', '.png', '.bmp', '.tif', '.tiff')
-
-
-def _extract_image(item):
-   # GZ2 items are dicts, torchvision datasets return (image, target) tuples
-   if isinstance(item, dict):
-      return item['image']
-   if isinstance(item, (tuple, list)):
-      return item[0]
-   return item
-
-
-# Galaxy images (1 = galaxy) with their morphology label (or IGNORE)
+# Create wrapper to convert GZ2 to binary labels (1 = galaxy)
 class GalaxyWrapper(torch.utils.data.Dataset):
-   def __init__(self, gz2_dataset, indices, morph_labels):
+   def __init__(self, gz2_dataset):
       self.gz2_dataset = gz2_dataset
-      self.indices = list(indices)
-      self.morph_labels = morph_labels
-
+   
    def __len__(self):
-      return len(self.indices)
-
+      return len(self.gz2_dataset)
+   
    def __getitem__(self, idx):
-      source_idx = self.indices[idx]
-      image = _extract_image(self.gz2_dataset[source_idx])
-      return image, GALAXY, int(self.morph_labels[source_idx])
-
-
-# Non-galaxy images (0 = not galaxy); never train the morphology head
+      batch = self.gz2_dataset[idx]
+      image = batch['image']
+      # Label: 1 for galaxy (all GZ2 samples are galaxies)
+      label = torch.tensor(1, dtype=torch.long)
+      return image, label
+   
+# Create wrapper to assign non-galaxy labels (0 = not galaxy)
 class NonGalaxyWrapper(torch.utils.data.Dataset):
-   def __init__(self, dataset, indices=None):
-      self.dataset = dataset
-      self.indices = list(range(len(dataset))) if indices is None else list(indices)
-
+   def __init__(self, fake_dataset):
+      self.fake_dataset = fake_dataset
+   
    def __len__(self):
-      return len(self.indices)
-
+      return len(self.fake_dataset)
+   
    def __getitem__(self, idx):
-      image = _extract_image(self.dataset[self.indices[idx]])
-      return image, NON_GALAXY, IGNORE
-
-
-# Every image file under a folder (recursively), with no labels
-class ImageFiles(torch.utils.data.Dataset):
-   def __init__(self, root, transform=None):
-      self.transform = transform
-      self.paths = sorted(
-         os.path.join(folder, name)
-         for folder, _, names in os.walk(root)
-         for name in names
-         if name.lower().endswith(IMAGE_EXTENSIONS)
-      )
-
-   def __len__(self):
-      return len(self.paths)
-
-   def __getitem__(self, idx):
-      with Image.open(self.paths[idx]) as image:
-         image = image.convert('RGB')
-      return self.transform(image) if self.transform else image
+      image, _ = self.fake_dataset[idx]
+      # Label: 0 for non-galaxy
+      label = torch.tensor(0, dtype=torch.long)
+      return image, label
